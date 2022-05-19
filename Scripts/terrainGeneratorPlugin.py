@@ -1,6 +1,4 @@
 import bpy
-from numpy import number
-from skimage import io
 import cv2
 from colormap import rgb2hex
 
@@ -34,8 +32,8 @@ class TerrainGeneratorPlugin(bpy.types.Operator):
     _patternPath: bpy.props.StringProperty(
         name="File Selection", description="Choose a File", default="", maxlen="1024", subtype="FILE_PATH")
 
-    _patternWidth: number
-    _patternHeight: number
+    _patternWidth: int
+    _patternHeight: int
 
     @classmethod
     def poll(cls, context):
@@ -44,11 +42,14 @@ class TerrainGeneratorPlugin(bpy.types.Operator):
     def execute(self, context):
         # main(context, self.my_vec)
         if self._patternPath.endswith(".png"):
-            pattern = io.imread(self._patternPath)
+            pattern = img = cv2.imread(self._patternPath)
             if pattern:
-                self._patternWidth = pattern.shape[0]
-                self._patternHeight = pattern.shape[1]
-            print(pattern)
+                #     # self._patternWidth = pattern.shape[0]
+                #     # self._patternHeight = pattern.shape[1]
+                scale_percent = 120  # percent of original size
+                self._patternWidth = int(img.shape[1] * scale_percent / 100)
+                self._patternHeight = int(img.shape[0] * scale_percent / 100)
+            # print(pattern)
 
         return {'FINISHED'}
 
