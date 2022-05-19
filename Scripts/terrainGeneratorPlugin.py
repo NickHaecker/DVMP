@@ -1,7 +1,21 @@
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTIBILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+
+# import string
 import bpy
 import cv2
-from colormap import rgb2hex
-
+from bpy_extras.io_utils import ImportHelper
 
 bl_info = {
     "name": "Terrain Generator",
@@ -16,14 +30,7 @@ bl_info = {
 }
 
 
-# def main(context, loc):
-#     for ob in context.scene.objects:
-#         ob.location = loc
-
-
-class TerrainGeneratorPlugin(bpy.types.Operator):
-
-    """Tooltip"""
+class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
     bl_idname = "terraingeneratorplugin.create_terrain"
     bl_label = "Terrain Generator"
     bl_description = "Generate Terrain"
@@ -34,29 +41,40 @@ class TerrainGeneratorPlugin(bpy.types.Operator):
 
     _patternWidth: int
     _patternHeight: int
+    _resizedPattern: any
+    _rgb_pattern: any
+    _convertPattern = '#%02x%02x%02x'
+
+    def handle_pixel_color(self, x_position, y_position):
+        color = self._rgb_pattern[y_position, x_position]
+        colorInHex = self._convertPattern % (color[0], color[1], color[2])
+        print(color)
+        print(colorInHex)
 
     @classmethod
     def poll(cls, context):
         return context.mode == "OBJECT"
 
     def execute(self, context):
-        # main(context, self.my_vec)
-        if self._patternPath.endswith(".png"):
-            pattern = img = cv2.imread(self._patternPath)
-            if pattern:
-                #     # self._patternWidth = pattern.shape[0]
-                #     # self._patternHeight = pattern.shape[1]
-                scale_percent = 120  # percent of original size
-                self._patternWidth = int(img.shape[1] * scale_percent / 100)
-                self._patternHeight = int(img.shape[0] * scale_percent / 100)
-            # print(pattern)
+        pattern = cv2.imread(self.filepath)
+        scale_percent = 120  # percent of original size
+        self._patternWidth = int(
+            pattern.shape[1] * scale_percent / 100)
+        self._patternHeight = int(
+            pattern.shape[0] * scale_percent / 100)
+        self._resizedPattern = cv2.resize(
+            pattern, (self._patternWidth,  self._patternHeight))
+        self._rgb_pattern = self._resizedPattern[:, :, ::-1]
+        for x in range(0, self._patternWidth, 1):
+            for y in range(0, self._patternHeight, 1):
+                self.handle_pixel_color(x, y)
 
         return {'FINISHED'}
 
 
 def menu_func(self, context):
     self.layout.operator(
-        TerrainGeneratorPlugin.bl_idname, icon='OUTLINER_OB_HAIR')
+        TerrainGeneratorPlugin.bl_idname, icon='MOD_FLUID')
 
 
 def register():
@@ -67,11 +85,3 @@ def register():
 def unregister():
     bpy.utils.unregister_class(TerrainGeneratorPlugin)
     bpy.types.VIEW3D_MT_mesh_add.remove(menu_func)
-
-
-# if name == "main":
-#     register()
-
-
-# test call
-# bpy.ops.object.TerrainGeneratorPlugin()
