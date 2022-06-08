@@ -29,6 +29,59 @@ bl_info = {
     "category": "Add Mesh",
 }
 
+green = (0, 255, 0)
+darkGreen = (53, 101, 20)
+brown = (143, 86, 59)
+blue = (0, 0, 255)
+
+# Umwandlung RGB in Hex
+
+# convert to hex
+conv2hex = '#%02x%02x%02x'
+
+conv2hexGreen = conv2hex % green
+conv2hexDarkGreen = conv2hex % darkGreen
+conv2hexBrown = conv2hex % brown
+conv2hexBlue = conv2hex % blue
+
+
+colorMap = {
+    "green": {
+        "handler": "green",
+        "hex": conv2hexGreen,
+        "import": "./Exports/Gras",
+        "name": "Gras"
+    },
+    "darkGreen": {
+        "handler": "dark_green",
+        "hex": conv2hexDarkGreen,
+        "name": "Busch",
+        "import": "./Exports/Bush"
+    },
+    "brown": {
+        "handler": "brown",
+        "hex": conv2hexBrown,
+        "name": "Baum",
+        "import": "./Exports/Tree",
+    },
+    "blue": {
+        "handler": "blue",
+        "hex": conv2hexBlue,
+        "name": "Stein",
+        "import": "./Exports/Stone",
+    }
+}
+
+
+def handle_color_map(hex: str) -> any:
+    current: any = None
+    for key in colorMap:
+        curr = colorMap[key]
+        _hex: str = curr["hex"]
+        if _hex == hex:
+            current = curr
+    return current
+
 
 class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
     bl_idname = "terraingeneratorplugin.create_terrain"
@@ -36,20 +89,39 @@ class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
     bl_description = "Generate Terrain"
     bl_options = {"REGISTER", "UNDO"}
 
-    _patternPath: bpy.props.StringProperty(
+    patternPath: bpy.props.StringProperty(
         name="File Selection", description="Choose a File", default="", maxlen="1024", subtype="FILE_PATH")
 
     _patternWidth: int
     _patternHeight: int
     _resizedPattern: any
     _rgb_pattern: any
-    _convertPattern = '#%02x%02x%02x'
+    _x: int
+    _y: int
+    _current: any
 
     def handle_pixel_color(self, x_position, y_position):
+        self._x = x_position
+        self._y = y_position
         color = self._rgb_pattern[y_position, x_position]
-        colorInHex = self._convertPattern % (color[0], color[1], color[2])
-        print(color)
-        print(colorInHex)
+        colorInHex = conv2hex % (color[0], color[1], color[2])
+        current = handle_color_map(
+            colorInHex)
+        if current != None:
+            self._current = current
+            getattr(self, 'handle_%s' % current["handler"])()
+
+    def handle_blue(self):
+        print("hit", self._x, self._y, self._current)
+
+    def handle_brown(self):
+        print("hit", self._x, self._y, self._current)
+
+    def handle_green(self):
+        print("hit", self._x, self._y, self._current)
+
+    def handle_dark_green(self):
+        print("hit", self._x, self._y, self._current)
 
     @classmethod
     def poll(cls, context):
