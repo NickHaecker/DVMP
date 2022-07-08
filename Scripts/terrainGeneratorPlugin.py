@@ -49,7 +49,6 @@ conv2hexBlue = conv2hex % blue
 
 
 class ColorData:
-    handler: str
     hex: str
     name: str
     import_path: str
@@ -57,31 +56,26 @@ class ColorData:
 
 colorMap: Dict[str, ColorData] = {
     "green": {
-        "handler": "green",
         "hex": conv2hexGreen,
-        "import_path": "E:\athaeck\Projekte\DVMP\Exports\Gras",
+        "import_path": "E:/athaeck/Projekte/DVMP/Exports/Gras",
         "name": "Gras"
     },
     "darkGreen": {
-        "handler": "dark_green",
         "hex": conv2hexDarkGreen,
-        "import_path": "Busch",
-        "import": "E:\athaeck\Projekte\DVMP\Exports\Bush"
+        "name": "Busch",
+        "import_path": "E:/athaeck/Projekte/DVMP/Exports/Bush"
     },
     "brown": {
-        "handler": "brown",
         "hex": conv2hexBrown,
         "name": "Baum",
-        "import_path": "E:\athaeck\Projekte\DVMP\Exports\Tree",
+        "import_path": "E:/athaeck/Projekte/DVMP/Exports/Tree",
     },
     "blue": {
-        "handler": "blue",
         "hex": conv2hexBlue,
         "name": "Stein",
-        "import_path": "E:\athaeck\Projekte\DVMP\Exports\Stone",
+        "import_path": "E:/athaeck/Projekte/DVMP/Exports/Stone",
     },
     "white": {
-        "handler": "white",
         "hex": "#ffffff",
         "name": "",
         "import_path": "",
@@ -93,7 +87,7 @@ def handle_color_map(hex: str) -> ColorData:
     current: ColorData = None
     for key in colorMap:
         curr: ColorData = colorMap[key]
-        _hex: str = curr.hex
+        _hex: str = curr["hex"]
         if _hex == hex:
             current = curr
     return current
@@ -107,14 +101,12 @@ def refresh():
     bpy.ops.outliner.orphans_purge()  # löscht überbleibende Meshdaten etc.
 
 
-def init_scene_structure() -> Dict[str, bpy.types.Collection]:
+def init_scene_structure() -> None:
     import_models: bpy.types.Collection = bpy.data.collections.new("Models")
+    bpy.context.scene.collection.children.link(import_models)
     planes: bpy.types.Collection = bpy.data.collections.new("Ground")
+    bpy.context.scene.collection.children.link(planes)
     import_models.hide_viewport = True
-    return {
-        "models": import_models,
-        "ground": planes
-    }
 
 
 id: int = 0
@@ -139,30 +131,34 @@ class PixelResolve:
         # i = i+1
 
     def import_model(self) -> None:
-        if len(self._color.import_path) > 0:
-            dir_list = os.listdir(self._color.import_path)
+        if len(self._color["import_path"]) > 0:
+            dir_list = os.listdir(self._color["import_path"])
             random_entry: int = random.randint(0, len(dir_list)-1)
             new_fbx: str = dir_list[random_entry]
             new_fbx_name: str = new_fbx.split(".")[0]
 
-            self._fbx = bpy.context.scene.objects[new_fbx_name]
+            self._fbx = bpy.context.scene.objects.get(new_fbx_name)
             if self._fbx is None:
                 bpy.ops.import_scene.fbx(
-                    filepath=self._color.import_path + "/" + new_fbx)
-                self._fbx = bpy.context.object
-                bpy.data.collections["Models"].objects.link(self._fbx)
+                    filepath=self._color["import_path"] + "/" + new_fbx)
+                self._fbx = bpy.context.scene.objects.get(new_fbx_name)
+                bpy.ops.object.move_to_collection(collection_index=2)
 
 # self._plugin.scale
 
     def init_plane(self) -> None:
         bpy.ops.mesh.primitive_plane_add(
-            size=2, enter_editmode=False, align='WORLD', location=(self._translation_x-1 * 10/2, self._translation_y-1 * 10/2, 0), scale=(1, 1, 1))
-        self._plane = bpy.context.object
-        bpy.data.collections["Ground"].objects.link(self._plane)
+            size=2, enter_editmode=False, align='WORLD', location=(self._translation_x * self._plugin._scale, self._translation_y * self._plugin._scale, 0), scale=(1, 1, 1))
+        name: str = "Plane" + "_" + \
+            str(self._translation_x) + "_" + str(self._translation_y)
+        bpy.context.selected_objects[0].name = name
+        self._plane = bpy.context.scene.objects.get(name)
+        bpy.ops.object.move_to_collection(collection_index=3)
 
     def handle_nodes(self) -> None:
-        self._plane.modifier_add(type='NODES')
-        node_group = self._plane.modifiers[0].node_group
+        self._plane.modifiers.new("Geometry Nodes", "NODES")
+        bpy.ops.node.new_geometry_node_group_assign()
+        node_group = bpy.context.object.modifiers[0].node_group
         nodes = node_group.nodes
 
         grid: bpy.types.Node = nodes.new(type="GeometryNodeMeshGrid")
@@ -194,22 +190,27 @@ class PixelResolve:
         instanceOnFaces.location.y -= 60
 
         nodeObjInfo: bpy.types.Node = nodes.new(
-            type="GeometryNodeObjectInfoNode")
+            type="GeometryNodeObjectInfo")
         nodeObjInfo.location.x += 1150
         nodeObjInfo.location.y -= 60
 
         nodes["Group Output"].location.x += 1400
         nodes["Group Output"].location.y += 100
 
-        grid.inputs[0].default_value = 10
+        grid.inputs[0].default_value = self._plugin._scale
         # self._plugin.scale
-        grid.inputs[1].default_value = 10
+        grid.inputs[1].default_value = self._plugin._scale
         # self._plugin.scale
         grid.inputs[2].default_value = 32
         grid.inputs[3].default_value = 32
 
         pointsOnFaces.inputs[3].default_value = 1
         pointsOnFaces.inputs[4].default_value = 0.5
+        pointsOnFaces.inputs[4].default_value = random.randint(-100, 100)
+
+        # instanceOnFaces.inputs[6].default_value[0] = 0.01
+        # instanceOnFaces.inputs[6].default_value[1] = 0.01
+        # instanceOnFaces.inputs[6].default_value[2] = 0.01
 
         nodeObjInfo.inputs[0].default_value = self._fbx
 
@@ -221,8 +222,6 @@ class PixelResolve:
                   setShadeSmooth.inputs["Geometry"])
         links.new(nodes["Set Shade Smooth"].outputs["Geometry"],
                   joinGeometry.inputs["Geometry"])
-        links.new(nodes["Combine XYZ"].outputs["Vector"],
-                  setPos.inputs["Offset"])
         links.new(nodes["Set Shade Smooth"].outputs["Geometry"],
                   pointsOnFaces.inputs["Mesh"])
         links.new(nodes["Distribute Points on Faces"].outputs["Points"],
@@ -269,7 +268,7 @@ class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         pattern = cv2.imread(self.filepath)
         refresh()
-        self._collections = init_scene_structure()
+        init_scene_structure()
         scale_percent = 120  # percent of original size
         self._patternWidth = int(
             pattern.shape[1] * scale_percent / 100)
