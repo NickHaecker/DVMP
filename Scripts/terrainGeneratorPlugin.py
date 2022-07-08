@@ -206,7 +206,7 @@ class PixelResolve:
 
         pointsOnFaces.inputs[3].default_value = 1
         pointsOnFaces.inputs[4].default_value = 0.5
-        pointsOnFaces.inputs[4].default_value = random.randint(-100, 100)
+        pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
 
         # instanceOnFaces.inputs[6].default_value[0] = 0.01
         # instanceOnFaces.inputs[6].default_value[1] = 0.01

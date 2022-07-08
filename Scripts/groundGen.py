@@ -78,7 +78,6 @@ class PixelResolve:
                 bpy.ops.import_scene.fbx(
                     filepath=self._color["import_path"] + "/" + new_fbx)
                 self._fbx = bpy.context.scene.objects.get(new_fbx_name)
-                # bpy.data.collections["Models"].objects.link(self._fbx)
                 bpy.ops.object.move_to_collection(collection_index=2)
 
 # self._plugin.scale
@@ -86,25 +85,16 @@ class PixelResolve:
     def init_plane(self) -> None:
         bpy.ops.mesh.primitive_plane_add(
             size=2, enter_editmode=False, align='WORLD', location=(self._translation_x * 10, self._translation_y * 10, 0), scale=(1, 1, 1))
-
-        # bpy.ops.object.modifier_add(type='NODES')
-
         name: str = "Plane" + "_" + \
             str(self._translation_x) + "_" + str(self._translation_y)
         bpy.context.selected_objects[0].name = name
         self._plane = bpy.context.scene.objects.get(name)
-        # bpy.data.collections["Ground"].objects.link(self._plane)
         bpy.ops.object.move_to_collection(collection_index=3)
 
     def handle_nodes(self) -> None:
-        # self._plane.modifier_add(type='NODES')
-        # self._plane.modifiers.new(type="NODES", name="Geometry Nodes")
-        # print(bpy.context.object.modifiers.get("GeometryNodes"))
         self._plane.modifiers.new("Geometry Nodes", "NODES")
-        # node_group.
         bpy.ops.node.new_geometry_node_group_assign()
         node_group = bpy.context.object.modifiers[0].node_group
-        print(node_group)
         nodes = node_group.nodes
 
         grid: bpy.types.Node = nodes.new(type="GeometryNodeMeshGrid")
