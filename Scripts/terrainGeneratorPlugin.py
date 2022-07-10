@@ -269,7 +269,7 @@ class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
         pattern = cv2.imread(self.filepath)
         refresh()
         init_scene_structure()
-        scale_percent = 120  # percent of original size
+        scale_percent = 100  # percent of original size
         self._patternWidth = int(
             pattern.shape[1] * scale_percent / 100)
         self._patternHeight = int(
