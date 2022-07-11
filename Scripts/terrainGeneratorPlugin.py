@@ -57,23 +57,23 @@ class ColorData:
 colorMap: Dict[str, ColorData] = {
     "green": {
         "hex": conv2hexGreen,
-        "import_path": "C:/Users/viole/Desktop/DVMP/Exports/Gras",
+        "import_path": "C:/athaeck/DVMP/Exports/Gras",
         "name": "Gras"
     },
     "darkGreen": {
         "hex": conv2hexDarkGreen,
         "name": "Busch",
-        "import_path": "C:/Users/viole/Desktop/DVMP/Exports/Bush"
+        "import_path": "C:/athaeck/DVMP/Exports/Bush"
     },
     "brown": {
         "hex": conv2hexBrown,
         "name": "Baum",
-        "import_path": "C:/Users/viole/Desktop/DVMP/Exports/Tree",
+        "import_path": "C:/athaeck/DVMP/Exports/Tree",
     },
     "blue": {
         "hex": conv2hexBlue,
         "name": "Stein",
-        "import_path": "C:/Users/viole/Desktop/DVMP/Exports/Stone",
+        "import_path": "C:/athaeck/DVMP/Exports/Stone",
     },
     "white": {
         "hex": "#ffffff",
@@ -109,9 +109,6 @@ def init_scene_structure() -> None:
     import_models.hide_viewport = True
 
 
-id: int = 0
-
-
 class PixelResolve:
     _color: ColorData
     _translation_x: int
@@ -145,10 +142,8 @@ class PixelResolve:
                 self._fbx = bpy.context.scene.objects.get(new_fbx_name)
                 bpy.ops.object.move_to_collection(collection_index=2)
 
-# self._plugin.scale
-
     def init_plane(self) -> None:
-        bpy.ops.mesh.primitive_plane_add(
+        bpy.ops.mesh.primitive_cube_add(
             size=2, enter_editmode=False, align='WORLD', location=(self._translation_x * self._plugin._scale, self._translation_y * self._plugin._scale, 0), scale=(1, 1, 1))
         name: str = "Plane" + "_" + \
             str(self._translation_x) + "_" + str(self._translation_y)
@@ -181,7 +176,7 @@ class PixelResolve:
         joinGeometry.location.y += 100
 
         pointsOnFaces: bpy.types.Node = nodes.new(
-            type="GeometryNodeDistributePointsOnFaces")    
+            type="GeometryNodeDistributePointsOnFaces")
         pointsOnFaces.distribute_method = 'POISSON'
         pointsOnFaces.location.x += 900
         pointsOnFaces.location.y -= 60
@@ -251,22 +246,22 @@ class PixelResolve:
             pointsOnFaces.inputs[5].default_value = 0.8
             pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
 
-        elif self._color["name"]  == "Gras":
-             
+        elif self._color["name"] == "Gras":
+
             pointsOnFaces.inputs[2].default_value = 1
             pointsOnFaces.inputs[3].default_value = 1
             pointsOnFaces.inputs[5].default_value = 1
             pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
 
-        elif self._color["name"]  == "Baum":
-            
+        elif self._color["name"] == "Baum":
+
             pointsOnFaces.inputs[2].default_value = 1
             pointsOnFaces.inputs[3].default_value = 1
             pointsOnFaces.inputs[5].default_value = 0.9
             pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
 
-        elif self._color["name"]  == "Stein":
-             
+        elif self._color["name"] == "Stein":
+
             pointsOnFaces.inputs[2].default_value = 4
             pointsOnFaces.inputs[3].default_value = 3
             pointsOnFaces.inputs[5].default_value = 0.4
@@ -278,7 +273,6 @@ class PixelResolve:
             pointsOnFaces.inputs[5].default_value = 0.380
             pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
 
-        
         # pointsOnFaces.inputs[3].default_value = 1
         # pointsOnFaces.inputs[4].default_value = 0.5
         # pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
@@ -330,8 +324,11 @@ class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
     _collections: Dict[str, bpy.types.Collection]
     _scale: int = 10
 
+    def merge(self):
+        print("lol")
+
     def handle_pixel_color(self, x_position, y_position):
-        color = self._rgb_pattern[y_position, x_position]
+        color = self._rgb_pattern[x_position, y_position]
         colorInHex = conv2hex % (color[0], color[1], color[2])
         current: ColorData = handle_color_map(
             colorInHex)
@@ -360,6 +357,7 @@ class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
             for y in range(0, self._patternHeight, 1):
                 self.handle_pixel_color(x, y)
 
+        self.merge()
         return {'FINISHED'}
 
 
