@@ -53,27 +53,27 @@ class ColorData:
     name: str
     import_path: str
 
-
+#C:/Users/viole/Desktop/DVMP/Exports/
 colorMap: Dict[str, ColorData] = {
     "green": {
         "hex": conv2hexGreen,
-        "import_path": "E:/athaeck/Projekte/DVMP/Exports/Gras",
+        "import_path": "C:/Users/viole/Desktop/DVMP/Exports/Gras",
         "name": "Gras"
     },
     "darkGreen": {
         "hex": conv2hexDarkGreen,
         "name": "Busch",
-        "import_path": "E:/athaeck/Projekte/DVMP/Exports/Bush"
+        "import_path": "C:/Users/viole/Desktop/DVMP/Exports/Bush"
     },
     "brown": {
         "hex": conv2hexBrown,
         "name": "Baum",
-        "import_path": "E:/athaeck/Projekte/DVMP/Exports/Tree",
+        "import_path": "C:/Users/viole/Desktop/DVMP/Exports/Tree",
     },
     "blue": {
         "hex": conv2hexBlue,
         "name": "Stein",
-        "import_path": "E:/athaeck/Projekte/DVMP/Exports/Stone",
+        "import_path": "C:/Users/viole/Desktop/DVMP/Exports/Stone",
     },
     "white": {
         "hex": "#ffffff",
@@ -204,6 +204,23 @@ class PixelResolve:
         nodeObjInfo.location.x += 1150
         nodeObjInfo.location.y -= 60
     
+        #Scaling Random value
+        randomValuesScale: bpy.types.Node = nodes.new(
+            type="FunctionNodeRandomValue")
+        randomValuesScale.location.x += 2000
+        randomValuesScale.location.y -= 60
+
+        #Rotation Random value
+        randomValueRotation: bpy.types.Node = nodes.new(
+            type="FunctionNodeRandomValue")
+        randomValueRotation.location.x += 2300
+        randomValueRotation.location.y -= 60
+
+        #Combine XYZ
+        combineXYZRS: bpy.types.Node = nodes.new(
+            type="ShaderNodeCombineXYZ")
+        combineXYZRS.location.x += 2400
+        combineXYZRS.location.y -= 60
 
         nodes["Group Output"].location.x += 1400
         nodes["Group Output"].location.y += 100
@@ -214,6 +231,17 @@ class PixelResolve:
         # self._plugin.scale
         grid.inputs[2].default_value = 32
         grid.inputs[3].default_value = 32
+
+
+        #  Adding Values to Rotation and Scaling
+        randomValueRotation.data_type = "FLOAT"
+        randomValueRotation.inputs[2].default_value = 1
+        randomValueRotation.inputs[3].default_value = 7
+
+        randomValuesScale.data_type = "FLOAT"
+        randomValuesScale.inputs[2].default_value = 0.5        
+        randomValuesScale.inputs[3].default_value = 1.5        
+
 
 
 
@@ -279,9 +307,11 @@ class PixelResolve:
                   joinGeometry.inputs["Geometry"])
         links.new(nodes["Join Geometry"].outputs["Geometry"],
                   nodes["Group Output"].inputs["Geometry"])
-        links.new(nodes["Set Material"].outputs["Geometry"],
-                  joinGeometry.inputs["Geometry"])
-
+        
+        #Rotation and Scaling
+        links.new(nodes["Function Node Random Value"].outputs["Value"], combineXYZRS.inputs["Z"])
+        links.new(nodes["Combine XYZ"].outputs["Vector"], instanceOnFaces.inputs["Rotation"])
+        links.new(nodes["Random Value"].outputs["Value"], instanceOnFaces.inputs["Scale"])
 
 class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
     bl_idname = "terraingeneratorplugin.create_terrain"
