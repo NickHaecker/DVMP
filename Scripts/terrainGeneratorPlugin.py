@@ -128,6 +128,7 @@ class PixelResolve:
         self.import_model()
         self.init_plane()
         self.handle_nodes()
+        
         # i = i+1
 
     def import_model(self) -> None:
@@ -184,6 +185,14 @@ class PixelResolve:
         pointsOnFaces.location.x += 900
         pointsOnFaces.location.y -= 60
 
+        setMaterial: bpy.types.Node = nodes.new(
+            type="GeometryNodeSetMaterial")
+        mat_plane: bpy.types.Material = bpy.data.materials.new("Base Plane Material")
+        mat_plane.use_nodes = True
+        nodes_plane: List[bpy.types.Node] = mat_plane.node_tree.nodes
+        nodes_plane["Principled BSDF"].inputs[0].default_value = [100/255, 104/255, 60/255, 1]
+        setMaterial.inputs[2].default_value = mat_plane
+
         instanceOnFaces: bpy.types.Node = nodes.new(
             type="GeometryNodeInstanceOnPoints")
         instanceOnFaces.location.x += 1150
@@ -221,7 +230,7 @@ class PixelResolve:
         links.new(nodes["Set Position"].outputs["Geometry"],
                   setShadeSmooth.inputs["Geometry"])
         links.new(nodes["Set Shade Smooth"].outputs["Geometry"],
-                  joinGeometry.inputs["Geometry"])
+                  setMaterial.inputs["Geometry"])
         links.new(nodes["Set Shade Smooth"].outputs["Geometry"],
                   pointsOnFaces.inputs["Mesh"])
         links.new(nodes["Distribute Points on Faces"].outputs["Points"],
@@ -232,6 +241,8 @@ class PixelResolve:
                   joinGeometry.inputs["Geometry"])
         links.new(nodes["Join Geometry"].outputs["Geometry"],
                   nodes["Group Output"].inputs["Geometry"])
+        links.new(nodes["Set Material"].outputs["Geometry"],
+                  joinGeometry.inputs["Geometry"])
 
 
 class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
