@@ -194,6 +194,24 @@ class PixelResolve:
             type="GeometryNodeObjectInfo")
         nodeObjInfo.location.x += 1150
         nodeObjInfo.location.y -= 60
+        
+    #RotationNodes
+        vectorCombinexyz: bpy.types.Node = nodes.new(type="GeometryNodeCombineXYZ")
+        vectorCombinexyz.location.x += 1150
+        vectorCombinexyz.location.y -= 60
+
+        utilitMathRandomValueR: bpy.types.Node = nodes.new(type="GeometryNodeRandomValue")
+        utilitMathRandomValueR.input[2].default_value = 0
+        utilitMathRandomValueR.input[3].default_value = 7
+        vectorCombinexyz.location.x += 1200
+        vectorCombinexyz.location.y -= 70
+
+    #SkalierungNode
+        utilitMathRandomValueS: bpy.types.Node = nodes.new(type="GeometryNodeRandomValue")
+        utilitMathRandomValueS.input[2].default_value = 0.5
+        utilitMathRandomValueS.input[3].default_value = 1.5
+        vectorCombinexyz.location.x += 1300
+        vectorCombinexyz.location.y -= 80
 
         nodes["Group Output"].location.x += 1400
         nodes["Group Output"].location.y += 100
@@ -269,6 +287,16 @@ class PixelResolve:
                   joinGeometry.inputs["Geometry"])
         links.new(nodes["Join Geometry"].outputs["Geometry"],
                   nodes["Group Output"].inputs["Geometry"])
+        
+    #Rotation
+        links.new(nodes["vectorCombinexyz"].outputs["Vector"],
+                  pointsOnFaces.inputs["Rotation"])                 
+        links.new(nodes["utilitMathRandomValueR"].outputs["Value"],
+                  vectorCombinexyz.inputs["Z"])
+
+    #Skalierung
+        links.new(nodes["utilitMathRandomValueS"].outputs["Value"],
+                  pointsOnFaces.inputs["Scale"])
 
 
 class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
