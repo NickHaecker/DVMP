@@ -180,7 +180,8 @@ class PixelResolve:
         joinGeometry.location.y += 100
 
         pointsOnFaces: bpy.types.Node = nodes.new(
-            type="GeometryNodeDistributePointsOnFaces")
+            type="GeometryNodeDistributePointsOnFaces")    
+        pointsOnFaces.distribute_method = 'POISSON'
         pointsOnFaces.location.x += 900
         pointsOnFaces.location.y -= 60
 
@@ -204,9 +205,45 @@ class PixelResolve:
         grid.inputs[2].default_value = 32
         grid.inputs[3].default_value = 32
 
-        pointsOnFaces.inputs[3].default_value = 1
-        pointsOnFaces.inputs[4].default_value = 0.5
-        pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
+
+
+        if self._color["name"]  == "Busch":           
+            pointsOnFaces.inputs[2].default_value = 1
+            pointsOnFaces.inputs[3].default_value = 1
+            pointsOnFaces.inputs[5].default_value = 0.8
+            pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
+
+        elif self._color["name"]  == "Gras":
+             
+            pointsOnFaces.inputs[2].default_value = 1
+            pointsOnFaces.inputs[3].default_value = 1
+            pointsOnFaces.inputs[5].default_value = 1
+            pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
+
+        elif self._color["name"]  == "Baum":
+            
+            pointsOnFaces.inputs[2].default_value = 1
+            pointsOnFaces.inputs[3].default_value = 1
+            pointsOnFaces.inputs[5].default_value = 0.9
+            pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
+
+        elif self._color["name"]  == "Stein":
+             
+            pointsOnFaces.inputs[2].default_value = 4
+            pointsOnFaces.inputs[3].default_value = 3
+            pointsOnFaces.inputs[5].default_value = 0.4
+            pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
+
+        else:
+            pointsOnFaces.inputs[2].default_value = 2
+            pointsOnFaces.inputs[3].default_value = 0.5
+            pointsOnFaces.inputs[5].default_value = 0.380
+            pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
+
+        
+        # pointsOnFaces.inputs[3].default_value = 1
+        # pointsOnFaces.inputs[4].default_value = 0.5
+        # pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
 
         # instanceOnFaces.inputs[6].default_value[0] = 0.01
         # instanceOnFaces.inputs[6].default_value[1] = 0.01
