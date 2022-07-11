@@ -11,8 +11,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-
-# import string
 import bpy
 import os
 import cv2
@@ -54,27 +52,26 @@ class ColorData:
     import_path: str
 
 
-# C:/Users/viole/Desktop/DVMP/Exports/
 colorMap: Dict[str, ColorData] = {
     "green": {
         "hex": conv2hexGreen,
-        "import_path": "C:/athaeck/DVMP/Exports/Gras",
+        "import_path": "E:/athaeck/Projekte/DVMP/Exports/Gras",
         "name": "Gras"
     },
     "darkGreen": {
         "hex": conv2hexDarkGreen,
         "name": "Busch",
-        "import_path": "C:/athaeck/DVMP/Exports/Bush"
+        "import_path": "E:/athaeck/Projekte/DVMP/Exports/Bush"
     },
     "brown": {
         "hex": conv2hexBrown,
         "name": "Baum",
-        "import_path": "C:/athaeck/DVMP/Exports/Tree",
+        "import_path": "E:/athaeck/Projekte/DVMP/Exports/Tree",
     },
     "blue": {
         "hex": conv2hexBlue,
         "name": "Stein",
-        "import_path": "C:/athaeck/DVMP/Exports/Stone",
+        "import_path": "E:/athaeck/Projekte/DVMP/Exports/Stone",
     },
     "white": {
         "hex": "#ffffff",
@@ -95,7 +92,6 @@ def handle_color_map(hex: str) -> ColorData:
 
 
 def refresh():
-    # select and del all object
     bpy.ops.object.select_all(action='SELECT')  # selektiert alle Objekte
     # löscht selektierte objekte
     bpy.ops.object.delete(use_global=False, confirm=False)
@@ -127,7 +123,14 @@ class PixelResolve:
         self.init_plane()
         self.handle_nodes()
 
-        # i = i+1
+    def plane_texture(self) -> bpy.types.Material:
+        mat_plane: bpy.types.Material = bpy.data.materials.new(
+            "Base Plane Material")
+        mat_plane.use_nodes = True
+        nodes_plane: List[bpy.types.Node] = mat_plane.node_tree.nodes
+        nodes_plane["Principled BSDF"].inputs[0].default_value = [
+            100/255, 104/255, 60/255, 1]
+        return mat_plane
 
     def import_model(self) -> None:
         if len(self._color["import_path"]) > 0:
@@ -184,13 +187,8 @@ class PixelResolve:
 
         setMaterial: bpy.types.Node = nodes.new(
             type="GeometryNodeSetMaterial")
-        mat_plane: bpy.types.Material = bpy.data.materials.new(
-            "Base Plane Material")
-        mat_plane.use_nodes = True
-        nodes_plane: List[bpy.types.Node] = mat_plane.node_tree.nodes
-        nodes_plane["Principled BSDF"].inputs[0].default_value = [
-            100/255, 104/255, 60/255, 1]
-        setMaterial.inputs[2].default_value = mat_plane
+
+        setMaterial.inputs[2].default_value = self.plane_texture()
 
         instanceOnFaces: bpy.types.Node = nodes.new(
             type="GeometryNodeInstanceOnPoints")
@@ -214,49 +212,54 @@ class PixelResolve:
         nodes["Group Output"].location.y += 100
 
         grid.inputs[0].default_value = self._plugin._scale
-        # self._plugin.scale
         grid.inputs[1].default_value = self._plugin._scale
-        # self._plugin.scale
         grid.inputs[2].default_value = 32
         grid.inputs[3].default_value = 32
 
+        distance_min: int
+        density_max: int
+        density_factor: int
+
         if self._color["name"] == "Busch":
-            pointsOnFaces.inputs[2].default_value = 1
-            pointsOnFaces.inputs[3].default_value = 1
-            pointsOnFaces.inputs[5].default_value = 0.8
-            pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
+            distance_min = 1
+            density_max = 1
+            density_factor = 0.8
 
         elif self._color["name"] == "Gras":
 
-            pointsOnFaces.inputs[2].default_value = 1
-            pointsOnFaces.inputs[3].default_value = 1
-            pointsOnFaces.inputs[5].default_value = 1
-            pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
+            distance_min = 1
+            density_max = 1
+            density_factor = 1
 
         elif self._color["name"] == "Baum":
 
-            pointsOnFaces.inputs[2].default_value = 1
-            pointsOnFaces.inputs[3].default_value = 1
-            pointsOnFaces.inputs[5].default_value = 0.9
-            pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
+            distance_min = 1
+            density_max = 1
+            density_factor = 0.9
 
         elif self._color["name"] == "Stein":
 
-            pointsOnFaces.inputs[2].default_value = 4
-            pointsOnFaces.inputs[3].default_value = 3
-            pointsOnFaces.inputs[5].default_value = 0.4
-            pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
+            distance_min = 4
+            density_max = 3
+            density_factor = 0.4
 
         else:
-            pointsOnFaces.inputs[2].default_value = 2
-            pointsOnFaces.inputs[3].default_value = 0.5
-            pointsOnFaces.inputs[5].default_value = 0.380
-            pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
+            distance_min = 2
+            density_max = 0.5
+            density_factor = 0.380
+
+        pointsOnFaces.inputs[2].default_value = distance_min
+        pointsOnFaces.inputs[3].default_value = density_max
+        pointsOnFaces.inputs[5].default_value = density_factor
+        pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
 
         value: float = random.uniform(0.5, 1.5)
+
         instanceOnFaces.inputs[6].default_value[0] = value
         instanceOnFaces.inputs[6].default_value[1] = value
         instanceOnFaces.inputs[6].default_value[2] = value
+
+        print(instanceOnFaces.outputs["Instances"])
 
         nodeObjInfo.inputs[0].default_value = self._fbx
 
@@ -279,7 +282,7 @@ class PixelResolve:
         links.new(nodes["Set Material"].outputs["Geometry"],
                   joinGeometry.inputs["Geometry"])
 
-        #Rotation and Scaling
+        # Rotation and Scaling
         links.new(nodes["Combine XYZ"].outputs["Vector"],
                   instanceOnFaces.inputs["Rotation"])
 
@@ -288,13 +291,31 @@ class PixelResolve:
 
 
 class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
+    """Tooltip"""
     bl_idname = "terraingeneratorplugin.create_terrain"
     bl_label = "Terrain Generator"
     bl_description = "Generate Terrain"
     bl_options = {"REGISTER", "UNDO"}
+    bl_context = "scene"
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
 
-    patternPath: bpy.props.StringProperty(
-        name="File Selection", description="Choose a File", default="", maxlen="1024", subtype="FILE_PATH")
+    PATTERN_PATH: bpy.props.StringProperty(
+        name="File Selection", description="Choose a File", subtype="FILE_PATH", default="")
+
+    GRASS_PATH: bpy.props.StringProperty(
+        name="Folder Selection", description="Choose Grass Path", subtype="DIR_PATH", default="")
+
+    BUSH_PATH: bpy.props.StringProperty(
+        name="Folder Selection", description="Choose Bush Path", subtype="DIR_PATH", default="")
+
+    TREE_PATH: bpy.props.StringProperty(
+        name="Folder Selection", description="Choose Tree Path", subtype="DIR_PATH", default="")
+
+    STONE_PATH: bpy.props.StringProperty(
+        name="Folder Selection", description="Choose Stone Path", subtype="DIR_PATH", default="")
+
+    WIDTH_BASE: bpy.props.FloatProperty(name="Base Width", default=0.01, min=0)
 
     _patternWidth: int
     _patternHeight: int
@@ -303,9 +324,6 @@ class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
     _resolvedPattern: List[PixelResolve] = []
     _collections: Dict[str, bpy.types.Collection]
     _scale: int = 10
-
-    def merge(self):
-        print("lol")
 
     def handle_pixel_color(self, x_position, y_position):
         color = self._rgb_pattern[x_position, y_position]
@@ -318,11 +336,11 @@ class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
 
     @classmethod
     def poll(cls, context):
-        # löscht überbleibende Meshdaten etc.
-        bpy.ops.outliner.orphans_purge()
+        return context.mode == "OBJECT"
 
     def execute(self, context):
         pattern = cv2.imread(self.filepath)
+
         refresh()
         init_scene_structure()
         scale_percent = 100  # percent of original size
@@ -337,7 +355,6 @@ class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
             for y in range(0, self._patternHeight, 1):
                 self.handle_pixel_color(x, y)
 
-        self.merge()
         return {'FINISHED'}
 
 
@@ -348,9 +365,9 @@ def menu_func(self, context):
 
 def register():
     bpy.utils.register_class(TerrainGeneratorPlugin)
-    bpy.types.VIEW3D_MT_mesh_add.append(menu_func)
+    bpy.types.TOPBAR_MT_file_import.append(menu_func)
 
 
 def unregister():
     bpy.utils.unregister_class(TerrainGeneratorPlugin)
-    bpy.types.VIEW3D_MT_mesh_add.remove(menu_func)
+    bpy.types.TOPBAR_MT_file_import.remove(menu_func)
