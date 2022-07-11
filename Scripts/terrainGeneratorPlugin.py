@@ -202,23 +202,13 @@ class PixelResolve:
         nodeObjInfo.location.x += 1150
         nodeObjInfo.location.y -= 60
 
-        # Scaling Random value
-        randomValuesScale: bpy.types.Node = nodes.new(
-            type="FunctionNodeRandomValue")
-        randomValuesScale.location.x += 2000
-        randomValuesScale.location.y -= 60
-
-        # Rotation Random value
-        randomValueRotation: bpy.types.Node = nodes.new(
-            type="FunctionNodeRandomValue")
-        randomValueRotation.location.x += 2300
-        randomValueRotation.location.y -= 60
-
         # Combine XYZ
         combineXYZRS: bpy.types.Node = nodes.new(
             type="ShaderNodeCombineXYZ")
         combineXYZRS.location.x += 2400
         combineXYZRS.location.y -= 60
+
+        combineXYZRS.inputs[2].default_value = random.uniform(1.0, 7.0)
 
         nodes["Group Output"].location.x += 1400
         nodes["Group Output"].location.y += 100
@@ -229,15 +219,6 @@ class PixelResolve:
         # self._plugin.scale
         grid.inputs[2].default_value = 32
         grid.inputs[3].default_value = 32
-
-        #  Adding Values to Rotation and Scaling
-        randomValueRotation.data_type = "FLOAT"
-        randomValueRotation.inputs[2].default_value = 1
-        randomValueRotation.inputs[3].default_value = 7
-
-        randomValuesScale.data_type = "FLOAT"
-        randomValuesScale.inputs[2].default_value = 0.5
-        randomValuesScale.inputs[3].default_value = 1.5
 
         if self._color["name"] == "Busch":
             pointsOnFaces.inputs[2].default_value = 1
@@ -272,13 +253,10 @@ class PixelResolve:
             pointsOnFaces.inputs[5].default_value = 0.380
             pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
 
-        # pointsOnFaces.inputs[3].default_value = 1
-        # pointsOnFaces.inputs[4].default_value = 0.5
-        # pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
-
-        # instanceOnFaces.inputs[6].default_value[0] = 0.01
-        # instanceOnFaces.inputs[6].default_value[1] = 0.01
-        # instanceOnFaces.inputs[6].default_value[2] = 0.01
+        value: float = random.uniform(0.5, 1.5)
+        instanceOnFaces.inputs[6].default_value[0] = value
+        instanceOnFaces.inputs[6].default_value[1] = value
+        instanceOnFaces.inputs[6].default_value[2] = value
 
         nodeObjInfo.inputs[0].default_value = self._fbx
 
@@ -302,12 +280,8 @@ class PixelResolve:
                   joinGeometry.inputs["Geometry"])
 
         #Rotation and Scaling
-        links.new(
-            nodes["Random Value"].outputs["Value"], combineXYZRS.inputs["Z"])
         links.new(nodes["Combine XYZ"].outputs["Vector"],
                   instanceOnFaces.inputs["Rotation"])
-        links.new(nodes["Random Value"].outputs["Value"],
-                  instanceOnFaces.inputs["Scale"])
 
         links.new(nodes["Join Geometry"].outputs["Geometry"],
                   nodes["Group Output"].inputs["Geometry"])
