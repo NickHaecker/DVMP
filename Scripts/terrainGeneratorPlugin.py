@@ -58,23 +58,23 @@ class ColorData:
 colorMap: Dict[str, ColorData] = {
     "green": {
         "hex": conv2hexGreen,
-        "import_path": "C:/athaeck/DVMP/Exports/Gras",
+        "import_path": "C:/Users/meyer/OneDrive/Desktop/DVMP/Exports/Gras",
         "name": "Gras"
     },
     "darkGreen": {
         "hex": conv2hexDarkGreen,
         "name": "Busch",
-        "import_path": "C:/athaeck/DVMP/Exports/Bush"
+        "import_path": "C:/Users/meyer/OneDrive/Desktop/DVMP/Exports/Bush"
     },
     "brown": {
         "hex": conv2hexBrown,
         "name": "Baum",
-        "import_path": "C:/athaeck/DVMP/Exports/Tree",
+        "import_path": "C:/Users/meyer/OneDrive/Desktop/DVMP/Exports/Tree",
     },
     "blue": {
         "hex": conv2hexBlue,
         "name": "Stein",
-        "import_path": "C:/athaeck/DVMP/Exports/Stone",
+        "import_path": "C:/Users/meyer/OneDrive/Desktop/DVMP/Exports/Stone",
     },
     "white": {
         "hex": "#ffffff",
