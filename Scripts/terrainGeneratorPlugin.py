@@ -148,7 +148,7 @@ class PixelResolve:
 
     def init_plane(self) -> None:
         bpy.ops.mesh.primitive_plane_add(
-            size=2, enter_editmode=False, align='WORLD', location=(self._translation_x * self._plugin._scale, self._translation_y * self._plugin._scale, 0), scale=(1, 1, 1))
+            size=2, enter_editmode=False, align='WORLD', location=(self._translation_x * self._plugin._scale, - self._translation_y * self._plugin._scale, 0), scale=(1, 1, 1))
         name: str = "Plane" + "_" + \
             str(self._translation_x) + "_" + str(self._translation_y)
         bpy.context.selected_objects[0].name = name
@@ -326,7 +326,7 @@ class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
     _scale: int = 10
 
     def handle_pixel_color(self, x_position, y_position):
-        color = self._rgb_pattern[x_position, y_position]
+        color = self._rgb_pattern[y_position, x_position]
         colorInHex = conv2hex % (color[0], color[1], color[2])
         current: ColorData = handle_color_map(
             colorInHex)
