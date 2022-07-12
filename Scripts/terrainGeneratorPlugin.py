@@ -55,23 +55,23 @@ class ColorData:
 colorMap: Dict[str, ColorData] = {
     "green": {
         "hex": conv2hexGreen,
-        "import_path": "C:/Users/meyer/OneDrive/Desktop/DVMP/Exports/Gras",
+        "import_path": "E:/athaeck/Projekte/DVMP/Exports/Gras",
         "name": "Gras"
     },
     "darkGreen": {
         "hex": conv2hexDarkGreen,
         "name": "Busch",
-        "import_path": "C:/Users/meyer/OneDrive/Desktop/DVMP/Exports/Bush"
+        "import_path": "E:/athaeck/Projekte/DVMP/Exports/Bush"
     },
     "brown": {
         "hex": conv2hexBrown,
         "name": "Baum",
-        "import_path": "C:/Users/meyer/OneDrive/Desktop/DVMP/Exports/Tree",
+        "import_path": "E:/athaeck/Projekte/DVMP/Exports/Tree",
     },
     "blue": {
         "hex": conv2hexBlue,
         "name": "Stein",
-        "import_path": "C:/Users/meyer/OneDrive/Desktop/DVMP/Exports/Stone",
+        "import_path": "E:/athaeck/Projekte/DVMP/Exports/Stone",
     },
     "white": {
         "hex": "#ffffff",
@@ -200,13 +200,23 @@ class PixelResolve:
         nodeObjInfo.location.x += 1150
         nodeObjInfo.location.y -= 60
 
-        # Combine XYZ
-        combineXYZRS: bpy.types.Node = nodes.new(
-            type="ShaderNodeCombineXYZ")
-        combineXYZRS.location.x += 2400
-        combineXYZRS.location.y -= 60
+        randomValue: bpy.types.Node = nodes.new(
+            type="FunctionNodeRandomValue")
+        randomValue.data_type = 'FLOAT_VECTOR'
+        randomValue.inputs[0].default_value[2] = -360
+        randomValue.inputs[1].default_value[2] = 360
+        randomValue.inputs[1].default_value[1] = 0
+        randomValue.inputs[1].default_value[0] = 0
 
-        combineXYZRS.inputs[2].default_value = random.uniform(1.0, 7.0)
+        randomValueS: bpy.types.Node = nodes.new(
+            type="FunctionNodeRandomValue")
+        randomValueS.data_type = 'FLOAT_VECTOR'
+        randomValueS.inputs[0].default_value[2] = 0.5
+        randomValueS.inputs[0].default_value[1] = 1
+        randomValueS.inputs[0].default_value[0] = 1
+        randomValueS.inputs[1].default_value[2] = 1.5
+        randomValueS.inputs[1].default_value[1] = 1
+        randomValueS.inputs[1].default_value[0] = 1
 
         nodes["Group Output"].location.x += 1400
         nodes["Group Output"].location.y += 100
@@ -253,13 +263,7 @@ class PixelResolve:
         pointsOnFaces.inputs[5].default_value = density_factor
         pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
 
-        value: float = random.uniform(0.5, 1.5)
-
-        instanceOnFaces.inputs[6].default_value[0] = value
-        instanceOnFaces.inputs[6].default_value[1] = value
-        instanceOnFaces.inputs[6].default_value[2] = value
-
-        print(instanceOnFaces.outputs["Instances"])
+        print(instanceOnFaces.outputs[0].links)
 
         nodeObjInfo.inputs[0].default_value = self._fbx
 
@@ -281,10 +285,10 @@ class PixelResolve:
                   joinGeometry.inputs["Geometry"])
         links.new(nodes["Set Material"].outputs["Geometry"],
                   joinGeometry.inputs["Geometry"])
-
-        # Rotation and Scaling
-        links.new(nodes["Combine XYZ"].outputs["Vector"],
+        links.new(randomValue.outputs["Value"],
                   instanceOnFaces.inputs["Rotation"])
+        links.new(randomValueS.outputs["Value"],
+                  instanceOnFaces.inputs["Scale"])
 
         links.new(nodes["Join Geometry"].outputs["Geometry"],
                   nodes["Group Output"].inputs["Geometry"])
