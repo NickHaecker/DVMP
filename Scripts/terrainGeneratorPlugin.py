@@ -244,9 +244,9 @@ class PixelResolve:
 
         elif self._color["name"] == "Baum":
 
-            distance_min = 1
-            density_max = 1
-            density_factor = 0.9
+            distance_min = 1.4
+            density_max = 1.2
+            density_factor = 0.453
 
         elif self._color["name"] == "Stein":
 
