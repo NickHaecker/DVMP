@@ -344,7 +344,20 @@ class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
         return context.mode == "OBJECT"
 
     def execute(self, context):
-        pattern = cv2.imread(self.filepath)
+        pattern = cv2.imread(self.PATTERN_PATH)
+
+        green = colorMap["green"]
+        green["import_path"] = self.GRASS_PATH
+
+        darkGreen = colorMap["darkGreen"]
+        darkGreen["import_path"] = self.BUSH_PATH
+
+        brown = colorMap["brown"]
+        brown["import_patch"] = self.TREE_PATH
+
+        blue = colorMap["blue"]
+        blue["import_path"] = self.STONE_PATH
+
 
         refresh()
         init_scene_structure()
