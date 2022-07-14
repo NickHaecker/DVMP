@@ -129,8 +129,10 @@ class PixelResolve:
         mat.use_nodes = True
         bsdf = mat.node_tree.nodes["Principled BSDF"]
         texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
-        texImage.image = bpy.data.images.load("C:/Users/meyer/OneDrive/Desktop/DVMP/Pattern/grass_tex_dark.jpg")
-        mat.node_tree.links.new(bsdf.inputs['Base Color'], texImage.outputs['Color'])
+        texImage.image = bpy.data.images.load(
+            "C:/athaeck/DVMP/Pattern/grass_tex_dark.jpg")
+        mat.node_tree.links.new(
+            bsdf.inputs['Base Color'], texImage.outputs['Color'])
 
         return mat
 
@@ -390,20 +392,20 @@ class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
         return context.mode == "OBJECT"
 
     def execute(self, context):
-        pattern = cv2.imread(self.PATTERN_PATH)
+        pattern = cv2.imread(self.filepath)
+        # pattern = cv2.imread(self.PATTERN_PATH)
 
-        green = colorMap["green"]
-        green["import_path"] = self.GRASS_PATH
+        # green = colorMap["green"]
+        # green["import_path"] = self.GRASS_PATH
 
-        darkGreen = colorMap["darkGreen"]
-        darkGreen["import_path"] = self.BUSH_PATH
+        # darkGreen = colorMap["darkGreen"]
+        # darkGreen["import_path"] = self.BUSH_PATH
 
-        brown = colorMap["brown"]
-        brown["import_patch"] = self.TREE_PATH
+        # brown = colorMap["brown"]
+        # brown["import_patch"] = self.TREE_PATH
 
-        blue = colorMap["blue"]
-        blue["import_path"] = self.STONE_PATH
-
+        # blue = colorMap["blue"]
+        # blue["import_path"] = self.STONE_PATH
 
         refresh()
         init_scene_structure()
