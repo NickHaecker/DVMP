@@ -165,9 +165,41 @@ class PixelResolve:
         grid.location.x += 100
         grid.location.y += 200
 
+        currObjectNode: bpy.types.Node = nodes.new(
+            type="GeometryNodeObjectInfo")
+        currObjectNode.location.x += 0
+        currObjectNode.location.y -= 60
+
+        currPos: bpy.types.Node = nodes.new(
+            type="GeometryNodeInputPosition")
+        currPos.location.x += 0
+        currPos.location.y -= 200
+
+        vecAdd: bpy.types.Node = nodes.new(
+            type="ShaderNodeVectorMath")
+        vecAdd.location.x += 0
+        vecAdd.location.y -= 100
+
+        noise: bpy.types.Node = nodes.new(type="ShaderNodeTexNoise")
+        noise.location.x -= 100
+        noise.location.y -= 50
+
+        noise.inputs[2].default_value = 0.54
+        noise.inputs[3].default_value = 2.000
+        noise.inputs[4].default_value = 0.5
+
+        comXYZ: bpy.types.Node = nodes.new(type="ShaderNodeCombineXYZ")
+        comXYZ.location.x += 300
+        comXYZ.location.y -= 60
+
         setPos: bpy.types.Node = nodes.new(type="GeometryNodeSetPosition")
         setPos.location.x += 500
         setPos.location.y += 150
+
+        joinGrid: bpy.types.Node = nodes.new(
+            type="GeometryNodeJoinGeometry")
+        joinGrid.location.x += 100
+        joinGrid.location.y += 100
 
         setShadeSmooth: bpy.types.Node = nodes.new(
             type="GeometryNodeSetShadeSmooth")
@@ -263,23 +295,35 @@ class PixelResolve:
         pointsOnFaces.inputs[5].default_value = density_factor
         pointsOnFaces.inputs[6].default_value = random.randint(-150, 150)
 
-        print(instanceOnFaces.outputs[0].links)
-
         nodeObjInfo.inputs[0].default_value = self._fbx
 
         links = node_group.links
 
         links.new(nodes["Grid"].outputs["Mesh"],
+                  joinGrid.inputs["Geometry"])
+        links.new(joinGrid.outputs["Geometry"],
                   setPos.inputs["Geometry"])
+        links.new(nodes["Group Input"].outputs["Geometry"],
+                  joinGrid.inputs["Geometry"])
         links.new(nodes["Set Position"].outputs["Geometry"],
                   setShadeSmooth.inputs["Geometry"])
+        links.new(nodes["Combine XYZ"].outputs["Vector"],
+                  setPos.inputs["Offset"])
+        links.new(nodes["Noise Texture"].outputs["Fac"],
+                  comXYZ.inputs["Z"])
+        links.new(vecAdd.outputs["Vector"],
+                  noise.inputs["Vector"])
+        links.new(currPos.outputs["Position"],
+                  vecAdd.inputs[1])
+        links.new(currObjectNode.outputs["Location"],
+                  vecAdd.inputs[0])
         links.new(nodes["Set Shade Smooth"].outputs["Geometry"],
                   setMaterial.inputs["Geometry"])
         links.new(nodes["Set Shade Smooth"].outputs["Geometry"],
                   pointsOnFaces.inputs["Mesh"])
         links.new(nodes["Distribute Points on Faces"].outputs["Points"],
                   instanceOnFaces.inputs["Points"])
-        links.new(nodes["Object Info"].outputs["Geometry"],
+        links.new(nodeObjInfo.outputs["Geometry"],
                   instanceOnFaces.inputs["Instance"])
         links.new(nodes["Instance on Points"].outputs["Instances"],
                   joinGeometry.inputs["Geometry"])
@@ -290,7 +334,7 @@ class PixelResolve:
         links.new(randomValueS.outputs["Value"],
                   instanceOnFaces.inputs["Scale"])
 
-        links.new(nodes["Join Geometry"].outputs["Geometry"],
+        links.new(joinGeometry.outputs["Geometry"],
                   nodes["Group Output"].inputs["Geometry"])
 
 
@@ -305,19 +349,19 @@ class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
     bl_region_type = 'WINDOW'
 
     PATTERN_PATH: bpy.props.StringProperty(
-        name="File Selection", description="Choose a File", subtype="FILE_PATH", default="")
+        name="Pattern Selection", description="Choose Pattern", subtype="FILE_PATH", default="")
 
     GRASS_PATH: bpy.props.StringProperty(
-        name="Folder Selection", description="Choose Grass Path", subtype="DIR_PATH", default="")
+        name="Grass Folder Selection", description="Choose Grass Path", subtype="DIR_PATH", default="")
 
     BUSH_PATH: bpy.props.StringProperty(
-        name="Folder Selection", description="Choose Bush Path", subtype="DIR_PATH", default="")
+        name="Bush Folder Selection", description="Choose Bush Path", subtype="DIR_PATH", default="")
 
     TREE_PATH: bpy.props.StringProperty(
-        name="Folder Selection", description="Choose Tree Path", subtype="DIR_PATH", default="")
+        name="Tree Folder Selection", description="Choose Tree Path", subtype="DIR_PATH", default="")
 
     STONE_PATH: bpy.props.StringProperty(
-        name="Folder Selection", description="Choose Stone Path", subtype="DIR_PATH", default="")
+        name="Stone Folder Selection", description="Choose Stone Path", subtype="DIR_PATH", default="")
 
     WIDTH_BASE: bpy.props.FloatProperty(name="Base Width", default=0.01, min=0)
 
@@ -344,6 +388,9 @@ class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
 
     def execute(self, context):
         pattern = cv2.imread(self.filepath)
+
+        green = colorMap["green"]
+        green["import_path"] = self.GRASS_PATH
 
         refresh()
         init_scene_structure()
