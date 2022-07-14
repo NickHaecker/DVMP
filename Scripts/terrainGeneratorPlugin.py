@@ -35,9 +35,6 @@ darkGreen = (53, 101, 20)
 brown = (143, 86, 59)
 blue = (0, 0, 255)
 
-# Umwandlung RGB in Hex
-
-# convert to hex
 conv2hex = '#%02x%02x%02x'
 
 conv2hexGreen = conv2hex % green
