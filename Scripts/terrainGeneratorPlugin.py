@@ -35,9 +35,6 @@ darkGreen = (53, 101, 20)
 brown = (143, 86, 59)
 blue = (0, 0, 255)
 
-# Umwandlung RGB in Hex
-
-# convert to hex
 conv2hex = '#%02x%02x%02x'
 
 conv2hexGreen = conv2hex % green
@@ -55,23 +52,23 @@ class ColorData:
 colorMap: Dict[str, ColorData] = {
     "green": {
         "hex": conv2hexGreen,
-        "import_path": "C:/Users/meyer/OneDrive/Desktop/DVMP/Exports/Gras",
+        "import_path": "",
         "name": "Gras"
     },
     "darkGreen": {
         "hex": conv2hexDarkGreen,
         "name": "Busch",
-        "import_path": "C:/Users/meyer/OneDrive/Desktop/DVMP/Exports/Bush"
+        "import_path": ""
     },
     "brown": {
         "hex": conv2hexBrown,
         "name": "Baum",
-        "import_path": "C:/Users/meyer/OneDrive/Desktop/DVMP/Exports/Tree",
+        "import_path": "",
     },
     "blue": {
         "hex": conv2hexBlue,
         "name": "Stein",
-        "import_path": "C:/Users/meyer/OneDrive/Desktop/DVMP/Exports/Stone",
+        "import_path": "",
     },
     "white": {
         "hex": "#ffffff",
@@ -130,7 +127,7 @@ class PixelResolve:
         bsdf = mat.node_tree.nodes["Principled BSDF"]
         texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
         texImage.image = bpy.data.images.load(
-            "C:/athaeck/DVMP/Pattern/grass_tex_dark.jpg")
+            "")
         mat.node_tree.links.new(
             bsdf.inputs['Base Color'], texImage.outputs['Color'])
 
@@ -338,7 +335,6 @@ class PixelResolve:
                   instanceOnFaces.inputs["Rotation"])
         links.new(randomValueS.outputs["Value"],
                   instanceOnFaces.inputs["Scale"])
-
         links.new(joinGeometry.outputs["Geometry"],
                   nodes["Group Output"].inputs["Geometry"])
 
@@ -393,19 +389,6 @@ class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
 
     def execute(self, context):
         pattern = cv2.imread(self.filepath)
-
-        # green = colorMap["green"]
-        # green["import_path"] = self.GRASS_PATH
-
-        # darkGreen = colorMap["darkGreen"]
-        # darkGreen["import_path"] = self.BUSH_PATH
-
-        # brown = colorMap["brown"]
-        # brown["import_patch"] = self.TREE_PATH
-
-        # blue = colorMap["blue"]
-        # blue["import_path"] = self.STONE_PATH
-
         refresh()
         init_scene_structure()
         scale_percent = 100  # percent of original size

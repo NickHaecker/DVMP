@@ -3,9 +3,8 @@
 BENÖTIGTE SOFTWARE: 
     - Blender >3.0
     - Python
-    - cv2
-    - numpy 
-    - diese Dinger installieren !!!!!!!!!
+    - cv2 (opencv-python)
+        - in der Blender Python.exe installieren (https://blender.stackexchange.com/questions/5287/using-3rd-party-python-modules)
 
 Falls gewünscht kann ein eigenes Pattern erstellt werden. Es sind jedoch Test Pattern im Ordner zu finden: 
     - \DVMP\Pattern
@@ -28,6 +27,8 @@ PROGRAMM STARTEN:
     2. Programmcode öffnen
         - Unter "terrainGeneratorPlugin.py" den "import_path" wie folgt anpassen.
             - C:/Users/.../DVMP/Exports/Gras
+        - Sowie der Texturpfad in der plane_texture MEthode.
+            - C:/Users/.../DVMP/Pattern/grass_tex_dark.jpg"
     
     3. In Blender Add-on installieren
         - Preferneces -> Add-ons -> terrainGeneratorPlugin.py installieren
