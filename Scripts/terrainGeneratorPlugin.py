@@ -393,7 +393,6 @@ class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
 
     def execute(self, context):
         pattern = cv2.imread(self.filepath)
-        # pattern = cv2.imread(self.PATTERN_PATH)
 
         # green = colorMap["green"]
         # green["import_path"] = self.GRASS_PATH
