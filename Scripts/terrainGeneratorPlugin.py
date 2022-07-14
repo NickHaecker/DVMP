@@ -306,19 +306,19 @@ class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
     bl_region_type = 'WINDOW'
 
     PATTERN_PATH: bpy.props.StringProperty(
-        name="File Selection", description="Choose a File", subtype="FILE_PATH", default="")
+        name="Pattern Selection", description="Choose a Pattern", subtype="FILE_PATH", default="")
 
     GRASS_PATH: bpy.props.StringProperty(
-        name="Folder Selection", description="Choose Grass Path", subtype="DIR_PATH", default="")
+        name="Grass Selection", description="Choose Grass Path", subtype="DIR_PATH", default="")
 
     BUSH_PATH: bpy.props.StringProperty(
-        name="Folder Selection", description="Choose Bush Path", subtype="DIR_PATH", default="")
+        name="Bush Selection", description="Choose Bush Path", subtype="DIR_PATH", default="")
 
     TREE_PATH: bpy.props.StringProperty(
-        name="Folder Selection", description="Choose Tree Path", subtype="DIR_PATH", default="")
+        name="Tree Selection", description="Choose Tree Path", subtype="DIR_PATH", default="")
 
     STONE_PATH: bpy.props.StringProperty(
-        name="Folder Selection", description="Choose Stone Path", subtype="DIR_PATH", default="")
+        name="Stone Selection", description="Choose Stone Path", subtype="DIR_PATH", default="")
 
     WIDTH_BASE: bpy.props.FloatProperty(name="Base Width", default=0.01, min=0)
 
