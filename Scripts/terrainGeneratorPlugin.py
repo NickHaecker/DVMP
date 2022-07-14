@@ -55,23 +55,23 @@ class ColorData:
 colorMap: Dict[str, ColorData] = {
     "green": {
         "hex": conv2hexGreen,
-        "import_path": "E:/athaeck/Projekte/DVMP/Exports/Gras",
+        "import_path": "C:/Users/meyer/OneDrive/Desktop/DVMP/Exports/Gras",
         "name": "Gras"
     },
     "darkGreen": {
         "hex": conv2hexDarkGreen,
         "name": "Busch",
-        "import_path": "E:/athaeck/Projekte/DVMP/Exports/Bush"
+        "import_path": "C:/Users/meyer/OneDrive/Desktop/DVMP/Exports/Bush"
     },
     "brown": {
         "hex": conv2hexBrown,
         "name": "Baum",
-        "import_path": "E:/athaeck/Projekte/DVMP/Exports/Tree",
+        "import_path": "C:/Users/meyer/OneDrive/Desktop/DVMP/Exports/Tree",
     },
     "blue": {
         "hex": conv2hexBlue,
         "name": "Stein",
-        "import_path": "E:/athaeck/Projekte/DVMP/Exports/Stone",
+        "import_path": "C:/Users/meyer/OneDrive/Desktop/DVMP/Exports/Stone",
     },
     "white": {
         "hex": "#ffffff",
@@ -124,13 +124,15 @@ class PixelResolve:
         self.handle_nodes()
 
     def plane_texture(self) -> bpy.types.Material:
-        mat_plane: bpy.types.Material = bpy.data.materials.new(
+        mat: bpy.types.Material = bpy.data.materials.new(
             "Base Plane Material")
-        mat_plane.use_nodes = True
-        nodes_plane: List[bpy.types.Node] = mat_plane.node_tree.nodes
-        nodes_plane["Principled BSDF"].inputs[0].default_value = [
-            100/255, 104/255, 60/255, 1]
-        return mat_plane
+        mat.use_nodes = True
+        bsdf = mat.node_tree.nodes["Principled BSDF"]
+        texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
+        texImage.image = bpy.data.images.load("C:/Users/meyer/OneDrive/Desktop/DVMP/Pattern/grass_tex_dark.jpg")
+        mat.node_tree.links.new(bsdf.inputs['Base Color'], texImage.outputs['Color'])
+
+        return mat
 
     def import_model(self) -> None:
         if len(self._color["import_path"]) > 0:
@@ -187,7 +189,6 @@ class PixelResolve:
 
         setMaterial: bpy.types.Node = nodes.new(
             type="GeometryNodeSetMaterial")
-
         setMaterial.inputs[2].default_value = self.plane_texture()
 
         instanceOnFaces: bpy.types.Node = nodes.new(
