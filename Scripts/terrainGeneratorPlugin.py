@@ -55,23 +55,23 @@ class ColorData:
 colorMap: Dict[str, ColorData] = {
     "green": {
         "hex": conv2hexGreen,
-        "import_path": "C:/Users/meyer/OneDrive/Desktop/DVMP/Exports/Gras",
+        "import_path": "",
         "name": "Gras"
     },
     "darkGreen": {
         "hex": conv2hexDarkGreen,
         "name": "Busch",
-        "import_path": "C:/Users/meyer/OneDrive/Desktop/DVMP/Exports/Bush"
+        "import_path": ""
     },
     "brown": {
         "hex": conv2hexBrown,
         "name": "Baum",
-        "import_path": "C:/Users/meyer/OneDrive/Desktop/DVMP/Exports/Tree",
+        "import_path": "",
     },
     "blue": {
         "hex": conv2hexBlue,
         "name": "Stein",
-        "import_path": "C:/Users/meyer/OneDrive/Desktop/DVMP/Exports/Stone",
+        "import_path": "",
     },
     "white": {
         "hex": "#ffffff",
@@ -130,7 +130,7 @@ class PixelResolve:
         bsdf = mat.node_tree.nodes["Principled BSDF"]
         texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
         texImage.image = bpy.data.images.load(
-            "C:/athaeck/DVMP/Pattern/grass_tex_dark.jpg")
+            "")
         mat.node_tree.links.new(
             bsdf.inputs['Base Color'], texImage.outputs['Color'])
 
