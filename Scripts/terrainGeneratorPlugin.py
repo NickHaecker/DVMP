@@ -338,7 +338,6 @@ class PixelResolve:
                   instanceOnFaces.inputs["Rotation"])
         links.new(randomValueS.outputs["Value"],
                   instanceOnFaces.inputs["Scale"])
-
         links.new(joinGeometry.outputs["Geometry"],
                   nodes["Group Output"].inputs["Geometry"])
 
@@ -393,19 +392,6 @@ class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
 
     def execute(self, context):
         pattern = cv2.imread(self.filepath)
-
-        # green = colorMap["green"]
-        # green["import_path"] = self.GRASS_PATH
-
-        # darkGreen = colorMap["darkGreen"]
-        # darkGreen["import_path"] = self.BUSH_PATH
-
-        # brown = colorMap["brown"]
-        # brown["import_patch"] = self.TREE_PATH
-
-        # blue = colorMap["blue"]
-        # blue["import_path"] = self.STONE_PATH
-
         refresh()
         init_scene_structure()
         scale_percent = 100  # percent of original size
