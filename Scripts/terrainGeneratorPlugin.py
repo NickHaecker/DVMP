@@ -170,6 +170,8 @@ class PixelResolve:
         currObjectNode.location.x += 0
         currObjectNode.location.y -= 60
 
+        currObjectNode.inputs[0].default_value = self._plane
+
         currPos: bpy.types.Node = nodes.new(
             type="GeometryNodeInputPosition")
         currPos.location.x += 0
@@ -388,9 +390,6 @@ class TerrainGeneratorPlugin(bpy.types.Operator, ImportHelper):
 
     def execute(self, context):
         pattern = cv2.imread(self.filepath)
-
-        green = colorMap["green"]
-        green["import_path"] = self.GRASS_PATH
 
         refresh()
         init_scene_structure()
